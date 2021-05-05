@@ -2,6 +2,7 @@ import random
 class Game():
     def __init__(self):
         self.options = {1: "Rock", 2: "Paper", 3: "Scissors"}
+        self.file = None
         
     def computer_num(self):
         comp_num = random.randint(1, 3)
@@ -21,51 +22,32 @@ class Game():
             return 1
 
     def stats(self):
-        file = open("Stats.csv", "r")
-        stats = file.readlines()
-        file.close()
+        self.check_for_stats_file()
+        stats = self.file.readlines()
+        self.file.close()
         if len(stats) == 0:
-            file = open("Stats.csv", "w")
-            file.write("Wins:," + "0" + ",\n")
-            file.write("Losses:," + "0" + ",\n")
-            file.write("Draws:," + "0" +",\n")
-            file.write("User Rocks:," + "0" + ",\n")
-            file.write("User Papers:," + "0" + ",\n")
-            file.write("User Sciccors:," + "0" + ",\n")
-            file.write("Computer Rocks:," + "0" + ",\n")
-            file.write("Computer Papers:," + "0" + ",\n")
-            file.write("Computer Sciccors:," + "0" + ",\n")
-            file.close()
-        file = open("Stats.csv", "r")
-        for line in file:
+            self.create_new_csv()
+            
+        self.file = open("Stats.csv", "r")
+        for line in self.file:
             temp_line = line.strip("\n")
             temp_line = temp_line.replace(",", " ")
             print(temp_line)
-        file.close()
+        self.file.close()
 
     def add_to_stats(self, comp_num, user_num, result):
-        file = open("Stats.csv", "r")
-        stats = file.readlines()
-        file.close()
+        self.check_for_stats_file()
+        stats = self.file.readlines()
+        self.file.close()
         if len(stats) == 0:
-            file = open("Stats.csv", "w")
-            file.write("Wins:," + "0" + ",\n")
-            file.write("Losses:," + "0" + ",\n")
-            file.write("Draws:," + "0" +",\n")
-            file.write("User Rocks:," + "0" + ",\n")
-            file.write("User Papers:," + "0" + ",\n")
-            file.write("User Sciccors:," + "0" + ",\n")
-            file.write("Computer Rocks:," + "0" + ",\n")
-            file.write("Computer Papers:," + "0" + ",\n")
-            file.write("Computer Sciccors:," + "0" + ",\n")
-            file.close()
+            self.create_new_csv()
             
         stats = []
-        file = open("Stats.csv", "r")
-        for line in file:
+        self.file = open("Stats.csv", "r")
+        for line in self.file:
             stat = line.split(",")
             stats.append(stat)
-        file.close()
+        self.file.close()
         
         prev_value = stats[result][1]
         prev_value = int(prev_value)
@@ -80,12 +62,19 @@ class Game():
         temp_store = int(temp_store) + 1
         stats[user_num + 2][1] = str(temp_store)
 
-        file = open("Stats.csv", "w")
+        self.file = open("Stats.csv", "w")
         for stat in stats:
             new_stat = stat[0] + "," + str(stat[1]) + "," + stat[2]
-            file.write(new_stat)
-        file.close()
-    
+            self.file.write(new_stat)
+        self.file.close()
+
+    def check_for_stats_file(self):
+        try:
+            self.file = open("Stats.csv", "r")
+        except FileNotFoundError:
+            self.create_new_csv()
+            self.file = open("Stats.csv", "r")
+            
     def choice(self):
         print("""1. Play game
 2. View stats
@@ -111,6 +100,15 @@ class Game():
                     return user_num
             if cor_inp == False:
                 print("You did not enter a valid input")
+
+    def create_new_csv(self):
+        stats = ("Wins:,", "Losses:,", "Draws:,", "User Rocks:,",
+                 "User Papers:,", "User Sciccors:,", "Computer Rocks:,",
+                 "Computer Papers:,", "Computer Sciccors:,")
+        file = open("Stats.csv", "w")
+        for stat in stats:
+            file.write(stat + "0" + ",\n")
+        file.close()
         
             
 def main():
